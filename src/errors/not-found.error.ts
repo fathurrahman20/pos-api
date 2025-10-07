@@ -1,4 +1,4 @@
-import AppError from "./AppError";
+import AppError from "./app.error";
 
 class NotFoundError extends AppError {
   constructor(message: string = "The requested resource was not found.") {
