@@ -4,16 +4,26 @@ import { initCategoryModel, Category } from "./category";
 import { initProductModel, Product } from "./product";
 import { initOrderModel, Order } from "./order";
 import { initOrderItemModel, OrderItem } from "./orderitem";
+import { config } from "dotenv";
 
 const env = process.env.NODE_ENV || "development";
-const config = require(__dirname + "/../config/config.js")[env];
+// const config = require(__dirname + "/../config/config.ts")[env];
 
-const sequelize = new Sequelize(
-  config.database,
-  config.username,
-  config.password,
-  config
-);
+config();
+
+const dbUrl = process.env.DATABASE_URL;
+
+if (!dbUrl) {
+  throw new Error("DATABASE_URL is not set");
+}
+
+const sequelize = new Sequelize(dbUrl, {
+  dialectOptions: {
+    ssl: {
+      require: true,
+    },
+  },
+});
 
 // Init semua model
 initUserModel(sequelize);
