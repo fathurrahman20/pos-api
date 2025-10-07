@@ -1,0 +1,9 @@
+# compiled output
+/dist
+/node_modules
+
+# IDEs and editors
+/.idea
+
+# dotenv environment variable files
+.env
