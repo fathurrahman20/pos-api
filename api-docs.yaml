@@ -4,7 +4,7 @@ info:
   description: API Documentation for a Padi Point of Sale system.
   version: 1.0.0
 servers:
-  - url: http://localhost:3000/api/v1
+  - url: https://pos-api.ffathur.my.id/api/v1
     description: Development server
 
 components:
