@@ -84,3 +84,13 @@ export const refreshToken = async (req: Request, res: Response) => {
     message: "Successfully create a new access token",
   });
 };
+
+export const logout = async (req: Request, res: Response) => {
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+
+  res.status(200).json({
+    success: true,
+    message: "Successfully logout",
+  });
+};
