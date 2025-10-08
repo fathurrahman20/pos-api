@@ -10,7 +10,11 @@ import ForbiddenError from "../errors/forbidden.error";
 import { Op } from "sequelize";
 import ConflictError from "../errors/conflict.error";
 import UnauthorizedError from "../errors/unauthorized.error";
-import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "../utils/jwt";
 import NotFoundError from "../errors/not-found.error";
 
 const SALT_ROUNDS = 10;
@@ -111,6 +115,24 @@ export const authService = {
       username: user.username,
       email: user.email,
       role: user.role,
+    };
+  },
+
+  async refreshToken(refreshToken: string) {
+    const decoded = verifyRefreshToken(refreshToken);
+    if (!decoded || typeof decoded === "string") {
+      throw new ForbiddenError("Refresh token tidak valid.");
+    }
+
+    const newAccessToken = generateAccessToken({
+      id: decoded.id,
+      username: decoded.username,
+      email: decoded.email,
+      role: decoded.role,
+    });
+
+    return {
+      newAccessToken,
     };
   },
 };

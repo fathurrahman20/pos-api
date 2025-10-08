@@ -69,3 +69,18 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     },
   });
 };
+
+export const refreshToken = async (req: Request, res: Response) => {
+  const refreshToken = req.cookies.refreshToken;
+  const { newAccessToken } = await authService.refreshToken(refreshToken);
+
+  res.cookie("accessToken", newAccessToken, {
+    httpOnly: true,
+    maxAge: 15 * 60 * 1000,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Successfully create a new access token",
+  });
+};

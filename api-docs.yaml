@@ -107,8 +107,6 @@ paths:
     post:
       summary: Login for admin and cashier
       tags: [Auth]
-      security:
-        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -212,6 +210,48 @@ paths:
                         type: string
                       role:
                         type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+  /auth/refresh:
+    get:
+      summary: Refresh access token
+      tags: [Auth]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: New access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
         "401":
           description: Unauthorized
           content:
