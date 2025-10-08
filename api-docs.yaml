@@ -4,18 +4,20 @@ info:
   description: API Documentation for a Padi Point of Sale system.
   version: 1.0.0
 servers:
-  - url: https://pos-api.ffathur.my.id/api/v1
-    description: Development server
-
+  # - url: https://pos-api.ffathur.my.id/api/v1
+  #   description: Production server
+  - url: http://localhost:3000/api/v1
+    description: Local Development server
 components:
   securitySchemes:
     cookieAuth:
       type: apiKey
       in: cookie
       name: accessToken
+      description: Access token stored in httpOnly cookieAuth
 
-security:
-  - cookieAuth: []
+# security:
+#   - cookieAuth: []
 
 paths:
   /auth/register:
@@ -47,12 +49,14 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    example: true
                   message:
                     type: string
+                    example: "Registrasi berhasil"
                   data:
                     type: object
                     properties:
-                      userId:
+                      id:
                         type: integer
                       username:
                         type: string
@@ -70,6 +74,7 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    example: false
                   message:
                     type: string
                   errors:
@@ -83,6 +88,7 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    example: false
                   message:
                     type: string
         "500":
@@ -94,5 +100,86 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    example: false
+                  message:
+                    type: string
+  /auth/login:
+    post:
+      summary: Login for admin and cashier
+      tags: [Auth]
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                  example: kasir
+                password:
+                  type: string
+                  format: password
+                  example: password123
+      responses:
+        "200":
+          description: Login successful, sets httpOnly cookies for tokens
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      username:
+                        type: string
+                      role:
+                        type: string
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                  errors:
+                    type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+        "500":
+          description: Login failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
                   message:
                     type: string

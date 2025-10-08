@@ -1,12 +1,16 @@
 import bcrypt from "bcrypt";
 import { z } from "zod";
-import { registerSchema } from "../schema/auth.schema";
+import {
+  LoginUserData,
+  registerSchema,
+  RegisterUserData,
+} from "../schema/auth.schema";
 import { sequelize, User } from "../models";
 import ForbiddenError from "../errors/forbidden.error";
 import { Op } from "sequelize";
 import ConflictError from "../errors/conflict.error";
-
-type RegisterUserData = z.infer<typeof registerSchema>;
+import UnauthorizedError from "../errors/unauthorized.error";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
 
 const SALT_ROUNDS = 10;
 
@@ -51,6 +55,44 @@ export const authService = {
       username: newUser.username,
       email: newUser.email,
       role: newUser.role,
+    };
+  },
+  async loginUser(userData: LoginUserData) {
+    const { username, password } = userData;
+    const user = await User.findOne({
+      where: { username },
+    });
+
+    if (!user) {
+      throw new UnauthorizedError("Username atau password salah");
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedError("Username atau password salah");
+    }
+
+    const accessToken = generateAccessToken({
+      id: user.id,
+      username: user.username,
+      role: user.role,
+    });
+
+    const refreshToken = generateRefreshToken({
+      id: user.id,
+      username: user.username,
+      role: user.role,
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      },
     };
   },
 };
