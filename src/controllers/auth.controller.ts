@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { loginSchema, registerSchema } from "../schema/auth.schema";
 import { authService } from "../services/auth.service";
+import NotFoundError from "../errors/not-found.error";
 
 export const register = async (req: Request, res: Response) => {
   const validatedData = registerSchema.parse(req.body);
@@ -42,8 +43,29 @@ export const login = async (req: Request, res: Response) => {
     data: {
       id: user.id,
       username: user.username,
+      email: user.email,
       role: user.role,
     },
   });
   return;
+};
+
+export const getCurrentUser = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    throw new NotFoundError("User not found");
+  }
+
+  const user = await authService.getCurrentUser(userId);
+
+  res.status(200).json({
+    success: true,
+    message: "Successfully get user",
+    data: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    },
+  });
 };

@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 export const generateAccessToken = (user: {
   id: number;
   username: string;
+  email: string;
   role: string;
 }) => {
   const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET!;
@@ -10,6 +11,7 @@ export const generateAccessToken = (user: {
     {
       id: user.id,
       username: user.username,
+      email: user.email,
       role: user.role,
     },
     ACCESS_TOKEN_SECRET,
@@ -22,6 +24,7 @@ export const generateAccessToken = (user: {
 export const generateRefreshToken = (user: {
   id: number;
   username: string;
+  email: string;
   role: string;
 }) => {
   const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET!;
@@ -29,6 +32,7 @@ export const generateRefreshToken = (user: {
     {
       id: user.id,
       username: user.username,
+      email: user.email,
       role: user.role,
     },
     REFRESH_TOKEN_SECRET,

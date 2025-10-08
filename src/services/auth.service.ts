@@ -11,6 +11,7 @@ import { Op } from "sequelize";
 import ConflictError from "../errors/conflict.error";
 import UnauthorizedError from "../errors/unauthorized.error";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
+import NotFoundError from "../errors/not-found.error";
 
 const SALT_ROUNDS = 10;
 
@@ -76,12 +77,14 @@ export const authService = {
     const accessToken = generateAccessToken({
       id: user.id,
       username: user.username,
+      email: user.email,
       role: user.role,
     });
 
     const refreshToken = generateRefreshToken({
       id: user.id,
       username: user.username,
+      email: user.email,
       role: user.role,
     });
 
@@ -91,8 +94,23 @@ export const authService = {
       user: {
         id: user.id,
         username: user.username,
+        email: user.email,
         role: user.role,
       },
+    };
+  },
+  async getCurrentUser(userId: number) {
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      throw new NotFoundError("User tidak ditemukan");
+    }
+
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
     };
   },
 };
