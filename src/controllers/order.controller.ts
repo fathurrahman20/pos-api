@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { orderServices } from "../services/order.service";
 import BadRequestError from "../errors/bad-request.error";
+import { createOrderSchema } from "../schema/order.schema";
 
 export const getAllOrders = async (req: Request, res: Response) => {
   const { page, limit } = req.query;
@@ -12,7 +13,12 @@ export const getAllOrders = async (req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     message: "Successfully get all orders",
-    data: orders,
+    data: orders.data,
+    meta: {
+      totalItems: orders.totalItems,
+      totalPages: orders.totalPages,
+      currentPage: orders.currentPage,
+    },
   });
 };
 
@@ -29,5 +35,23 @@ export const getOrderById = async (req: Request, res: Response) => {
     success: true,
     message: "Successfully get order",
     data: order,
+  });
+};
+
+export const createOrder = async (req: Request, res: Response) => {
+  const cashierId = req.user?.id;
+
+  if (!cashierId) {
+    throw new BadRequestError("Cashier ID not found.");
+  }
+
+  const validatedData = createOrderSchema.parse(req.body);
+
+  const newOrder = await orderServices.createOrder(validatedData, cashierId);
+
+  res.status(201).json({
+    success: true,
+    message: "Successfully create order",
+    data: newOrder,
   });
 };

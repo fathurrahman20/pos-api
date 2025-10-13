@@ -1102,6 +1102,17 @@ paths:
                           type: string
                         taxAmount:
                           type: string
+                        amountPaid:
+                          type: string
+                        paymentMethod:
+                          type: string
+                          example: cash
+                        orderNumber:
+                          type: string
+                          example: ORD-20251013-0001
+                        status:
+                          type: string
+                          example: paid
                         grandTotal:
                           type: string
                         cashierId:
@@ -1147,6 +1158,141 @@ paths:
                     example: false
                   message:
                     type: string
+    post:
+      summary: Create a new order
+      tags: [Orders]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customerName:
+                  type: string
+                  example: Luqman
+                orderType:
+                  type: string
+                  example: "take-away"
+                tableNumber:
+                  type: string
+                amountPaid:
+                  type: number,
+                paymentMethod:
+                  type: string
+                  example: "cash"
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      productId:
+                        type: integer
+                        example: 1
+                      quantity:
+                        type: integer
+                        example: 1
+                      notes:
+                        type: string
+      responses:
+        "201":
+          description: Order created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      customerName:
+                        type: string
+                        example: Luqman
+                      orderType:
+                        type: string
+                        example: "take-away"
+                      tableNumber:
+                        type: string
+                      subtotal:
+                        type: string
+                      taxAmount:
+                        type: string
+                      amountPaid:
+                        type: string
+                      paymentMethod:
+                        type: string
+                        example: cash
+                      orderNumber:
+                        type: string
+                        example: ORD-20251013-0001
+                      status:
+                        type: string
+                        example: paid
+                      grandTotal:
+                        type: string
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            orderId:
+                              type: integer
+                            quantity:
+                              type: integer
+                            price:
+                              type: string
+                            notes:
+                              type: string
+                            product:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                                price:
+                                  type: string
+                      cashier:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          username:
+                            type: string
+                      change:
+                        type: number
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
   /orders/{id}:
     get:
       summary: Get an order by ID
@@ -1179,6 +1325,17 @@ paths:
                     type: string
                   taxAmount:
                     type: string
+                  amountPaid:
+                    type: string
+                  paymentMethod:
+                    type: string
+                    example: cash
+                  orderNumber:
+                    type: string
+                    example: ORD-20251013-0001
+                  status:
+                    type: string
+                    example: paid
                   grandTotal:
                     type: string
                   cashierId:
