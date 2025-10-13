@@ -5,6 +5,7 @@ import { initProductModel, Product } from "./product";
 import { initOrderModel, Order } from "./order";
 import { initOrderItemModel, OrderItem } from "./orderitem";
 import { config } from "dotenv";
+import { initUserSettingsModel, UserSettings } from "./userSettings";
 
 const env = process.env.NODE_ENV || "development";
 // const config = require(__dirname + "/../config/config.ts")[env];
@@ -31,6 +32,7 @@ initCategoryModel(sequelize);
 initProductModel(sequelize);
 initOrderModel(sequelize);
 initOrderItemModel(sequelize);
+initUserSettingsModel(sequelize);
 
 // Call method associate untuk membuat relasi
 User.associate();
@@ -38,5 +40,6 @@ Category.associate();
 Product.associate();
 Order.associate();
 OrderItem.associate();
+UserSettings.associate();
 
 export { sequelize, User, Category, Product, Order, OrderItem };
