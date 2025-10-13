@@ -1,5 +1,6 @@
 import { Model, DataTypes, Sequelize } from "sequelize";
 import { Order } from "./order";
+import { UserSettings } from "./userSettings";
 
 export class User extends Model {
   public id!: number;
@@ -10,6 +11,7 @@ export class User extends Model {
   public image?: string;
   public resetPasswordToken?: string;
   public resetPasswordExpires?: Date;
+  public status?: "active" | "inactive";
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -19,6 +21,12 @@ export class User extends Model {
     User.hasMany(Order, {
       foreignKey: "cashierId",
       as: "orders",
+    });
+
+    // Satu User punya satu UserSettings
+    User.hasOne(UserSettings, {
+      foreignKey: "userId",
+      as: "settings",
     });
   }
 }
@@ -59,6 +67,10 @@ export const initUserModel = (sequelize: Sequelize) => {
       },
       resetPasswordExpires: {
         type: DataTypes.DATE,
+        allowNull: true,
+      },
+      status: {
+        type: DataTypes.ENUM("active", "inactive"),
         allowNull: true,
       },
     },
