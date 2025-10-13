@@ -1102,7 +1102,7 @@ paths:
                           type: string
                         taxAmount:
                           type: string
-                        grnadTotal:
+                        grandTotal:
                           type: string
                         cashierId:
                           type: integer
@@ -1135,6 +1135,83 @@ paths:
                       currentPage:
                         type: integer
                         example: 1
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+  /orders/{id}:
+    get:
+      summary: Get an order by ID
+      tags: [Orders]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Order ID
+      responses:
+        "200":
+          description: Order found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  customerName:
+                    type: string
+                    example: Luqman
+                  orderType:
+                    type: string
+                  tableNumber:
+                    type: string
+                  subtotal:
+                    type: string
+                  taxAmount:
+                    type: string
+                  grandTotal:
+                    type: string
+                  cashierId:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        orderId:
+                          type: integer
+                        productId:
+                          type: integer
+                        quantity:
+                          type: integer
+                        price:
+                          type: string
+                        notes:
+                          type: string
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
         "500":
           description: Internal server error
           content:

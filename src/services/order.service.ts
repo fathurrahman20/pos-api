@@ -1,3 +1,4 @@
+import NotFoundError from "../errors/not-found.error";
 import { Order, OrderItem } from "../models";
 
 export const orderServices = {
@@ -29,5 +30,28 @@ export const orderServices = {
       totalPages,
       currentPage: page,
     };
+  },
+
+  async getOrderById(id: number) {
+    const order = await Order.findByPk(id, {
+      include: [
+        {
+          model: OrderItem,
+          as: "items",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+      ],
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundError("Order not found");
+    }
+
+    return order;
   },
 };
