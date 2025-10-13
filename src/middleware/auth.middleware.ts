@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyAccessToken, verifyRefreshToken } from "../utils/jwt";
 import ForbiddenError from "../errors/forbidden.error";
+import UnauthorizedError from "../errors/unauthorized.error";
 
 export const authenticate = (
   req: Request,
@@ -14,7 +15,7 @@ export const authenticate = (
     ? verifyAccessToken(accessToken)
     : verifyRefreshToken(refreshToken);
   if (!decoded || typeof decoded === "string") {
-    throw new ForbiddenError("Token tidak valid.");
+    throw new UnauthorizedError("Token tidak valid. Silakan login kembali.");
   }
 
   req.user = {

@@ -1051,3 +1051,99 @@ paths:
                     example: false
                   message:
                     type: string
+  /orders:
+    get:
+      summary: Get all orders
+      tags: [Orders]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          required: false
+          description: The page number to retrieve.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+          required: false
+          description: The number of items to retrieve per page.
+      responses:
+        "200":
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        customerName:
+                          type: string
+                          example: Luqman
+                        orderType:
+                          type: string
+                        tableNumber:
+                          type: string
+                        subtotal:
+                          type: string
+                        taxAmount:
+                          type: string
+                        grnadTotal:
+                          type: string
+                        cashierId:
+                          type: integer
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                              orderId:
+                                type: integer
+                              productId:
+                                type: integer
+                              quantity:
+                                type: integer
+                              price:
+                                type: string
+                              notes:
+                                type: string
+                  meta:
+                    type: object
+                    properties:
+                      totalItems:
+                        type: integer
+                        example: 10
+                      totalPages:
+                        type: integer
+                        example: 1
+                      currentPage:
+                        type: integer
+                        example: 1
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string

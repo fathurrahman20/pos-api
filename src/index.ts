@@ -21,8 +21,15 @@ dotenv.config();
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
+const allowedOrigins = process.env.FRONTEND_URL || "http://localhost:5173";
+
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: allowedOrigins.split(","),
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use(
