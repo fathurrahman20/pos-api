@@ -185,7 +185,7 @@ export const orderServices = {
         },
       ],
       attributes: {
-        exclude: ["cashierId", "createdAt", "updatedAt"],
+        exclude: ["cashierId", "updatedAt"],
       },
     });
 

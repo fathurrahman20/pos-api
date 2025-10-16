@@ -4,10 +4,10 @@ info:
   description: API Documentation for a Padi Point of Sale system.
   version: 1.0.0
 servers:
-  - url: https://pos-api.ffathur.my.id/api/v1
-    description: Production server
-  # - url: http://localhost:3000/api/v1
-  #   description: Local Development server
+  # - url: https://pos-api.ffathur.my.id/api/v1
+  #   description: Production server
+  - url: http://localhost:3000/api/v1
+    description: Local Development server
 components:
   securitySchemes:
     cookieAuth:
@@ -140,6 +140,8 @@ paths:
                       id:
                         type: integer
                       username:
+                        type: string
+                      email:
                         type: string
                       role:
                         type: string
@@ -1269,6 +1271,8 @@ paths:
                             type: string
                       change:
                         type: number
+                      createdAt:
+                        type: string
         "400":
           description: Bad request
           content:
