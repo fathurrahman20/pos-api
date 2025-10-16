@@ -1,5 +1,6 @@
 import { Model, DataTypes, Sequelize } from "sequelize";
 import { Category } from "./category";
+import { OrderItem } from "./orderitem";
 
 export class Product extends Model {
   public id!: number;
@@ -13,11 +14,18 @@ export class Product extends Model {
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 
+  public readonly category?: Category;
+
   public static associate() {
     // Satu Produk milik satu Kategori
     Product.belongsTo(Category, {
       foreignKey: "categoryId",
       as: "category",
+    });
+
+    Product.hasMany(OrderItem, {
+      foreignKey: "productId",
+      as: "items",
     });
   }
 }

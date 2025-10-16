@@ -42,4 +42,4 @@ Order.associate();
 OrderItem.associate();
 UserSettings.associate();
 
-export { sequelize, User, Category, Product, Order, OrderItem };
+export { sequelize, User, Category, Product, Order, OrderItem, UserSettings };

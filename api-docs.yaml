@@ -4,10 +4,10 @@ info:
   description: API Documentation for a Padi Point of Sale system.
   version: 1.0.0
 servers:
-  # - url: https://pos-api.ffathur.my.id/api/v1
-  #   description: Production server
-  - url: http://localhost:3000/api/v1
-    description: Local Development server
+  - url: https://pos-api.ffathur.my.id/api/v1
+    description: Production server
+  # - url: http://localhost:3000/api/v1
+  #   description: Local Development server
 components:
   securitySchemes:
     cookieAuth:
@@ -1316,51 +1316,58 @@ paths:
               schema:
                 type: object
                 properties:
-                  id:
-                    type: integer
-                  customerName:
+                  success:
+                    type: boolean
+                  message:
                     type: string
-                    example: Luqman
-                  orderType:
-                    type: string
-                  tableNumber:
-                    type: string
-                  subtotal:
-                    type: string
-                  taxAmount:
-                    type: string
-                  amountPaid:
-                    type: string
-                  paymentMethod:
-                    type: string
-                    example: cash
-                  orderNumber:
-                    type: string
-                    example: ORD-20251013-0001
-                  status:
-                    type: string
-                    example: paid
-                  grandTotal:
-                    type: string
-                  cashierId:
-                    type: integer
-                  items:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        orderId:
-                          type: integer
-                        productId:
-                          type: integer
-                        quantity:
-                          type: integer
-                        price:
-                          type: string
-                        notes:
-                          type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      customerName:
+                        type: string
+                        example: Luqman
+                      orderType:
+                        type: string
+                      tableNumber:
+                        type: string
+                      subtotal:
+                        type: string
+                      taxAmount:
+                        type: string
+                      amountPaid:
+                        type: string
+                      paymentMethod:
+                        type: string
+                        example: cash
+                      orderNumber:
+                        type: string
+                        example: ORD-20251013-0001
+                      status:
+                        type: string
+                        example: paid
+                      grandTotal:
+                        type: string
+                      cashierId:
+                        type: integer
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            orderId:
+                              type: integer
+                            productId:
+                              type: integer
+                            quantity:
+                              type: integer
+                            price:
+                              type: string
+                            notes:
+                              type: string
         "404":
           description: Order not found
           content:
@@ -1385,3 +1392,128 @@ paths:
                     example: false
                   message:
                     type: string
+  /sales-report:
+    get:
+      summary: Get sales report for the logged-in cashier
+      tags: [Reports]
+      parameters:
+        - name: startDate
+          in: query
+          description: "Filter report from this date (format: YYYY-MM-DD)"
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: "Filter report until this date (format: YYYY-MM-DD)"
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: orderType
+          in: query
+          description: Filter by order type
+          required: false
+          schema:
+            type: string
+            enum: [dine-in, take-away]
+        - name: categoryId
+          in: query
+          description: Filter by product category ID
+          required: false
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Sales report generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      summary:
+                        type: object
+                        properties:
+                          totalOrder:
+                            type: number
+                            example: 8
+                          totalOmzet:
+                            type: number
+                            example: 1000000
+                          allMenuSales:
+                            type: number
+                            example: 15
+                          salesByCategory:
+                            type: object
+                            properties:
+                              Foods:
+                                type: number
+                                example: 5
+                              Beverages:
+                                type: number
+                                example: 5
+                              Desserts:
+                                type: number
+                                example: 2
+                      orders:
+                        type: object
+                        properties:
+                          data:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  example: 1
+                                orderNumber:
+                                  type: string
+                                  example: ORD-20251016-0003
+                                orderDate:
+                                  type: string
+                                  format: date-time
+                                orderType:
+                                  type: string
+                                  example: take-away
+                                customerName:
+                                  type: string
+                                  example: Luqman
+                                category:
+                                  type: string
+                                  example: Beverages, Foods
+                                grandTotal:
+                                  type: string
+                                  example: 100000
+                          currentPage:
+                            type: integer
+                            example: 1
+                          totalPages:
+                            type: integer
+                            example: 1
+                          totalItems:
+                            type: integer
+                            example: 6
+        "401":
+          description: Unauthorized, token is missing or invalid

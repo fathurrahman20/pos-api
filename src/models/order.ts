@@ -19,6 +19,8 @@ export class Order extends Model {
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 
+  public readonly items?: OrderItem[];
+
   public static associate() {
     // Satu Order dibuat oleh satu Kasir (User)
     Order.belongsTo(User, {

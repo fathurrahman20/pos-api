@@ -13,6 +13,8 @@ export class OrderItem extends Model {
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 
+  public readonly product?: Product;
+
   public static associate() {
     // Satu OrderItem terhubung ke satu Order
     OrderItem.belongsTo(Order, {
