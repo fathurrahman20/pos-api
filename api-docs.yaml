@@ -143,6 +143,8 @@ paths:
                         type: string
                       email:
                         type: string
+                      image:
+                        type: string
                       role:
                         type: string
         "400":
@@ -1551,7 +1553,15 @@ paths:
                         type: string
                         format: uri
                         nullable: true
-                      # ... (properti data lainnya tetap sama)
+                      status:
+                        type: string
+                        enum: [active, inactive]
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
                       settings:
                         type: object
                         properties:
