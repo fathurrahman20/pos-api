@@ -4,10 +4,10 @@ info:
   description: API Documentation for a Padi Point of Sale system.
   version: 1.0.0
 servers:
-  # - url: https://pos-api.ffathur.my.id/api/v1
-  #   description: Production server
-  - url: http://localhost:3000/api/v1
-    description: Local Development server
+  - url: https://pos-api.ffathur.my.id/api/v1
+    description: Production server
+  # - url: http://localhost:3000/api/v1
+  #   description: Local Development server
 components:
   securitySchemes:
     cookieAuth:
@@ -1607,6 +1607,9 @@ paths:
                 email:
                   type: string
                   format: email
+                password:
+                  type: string
+                  format: password
                 language:
                   type: string
                   enum: [English, Indonesia]
@@ -1637,14 +1640,45 @@ paths:
                   message:
                     type: string
                     example: "Successfully updated your settings"
-                  data: # Response body sama dengan GET
+                  data:
                     type: object
                     properties:
                       id:
                         type: integer
                       username:
                         type: string
-                      # ... (sisa properti data sama)
+                      email:
+                        type: string
+                        format: email
+                      image:
+                        type: string
+                        format: uri
+                        nullable: true
+                      role:
+                        type: string
+                        enum: [admin, kasir]
+                      status:
+                        type: string
+                        enum: [active, inactive]
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+                      settings:
+                        type: object
+                        properties:
+                          language:
+                            type: string
+                            enum: [English, Indonesia]
+                          preferenceMode:
+                            type: string
+                            enum: [light, dark]
+                          fontSize:
+                            type: integer
+                          zoomDisplay:
+                            type: integer
         "400":
           description: Bad request (e.g., validation error)
           content:
@@ -1671,6 +1705,18 @@ paths:
                     type: string
         "404":
           description: User or their settings not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+        "500":
+          description: Internal server error
           content:
             application/json:
               schema:

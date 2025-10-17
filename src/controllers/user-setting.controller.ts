@@ -21,8 +21,10 @@ export const getUserSettings = async (req: Request, res: Response) => {
 
 export const updateUserSettings = async (req: Request, res: Response) => {
   const userId = req.user?.id;
+  const username = req.user?.username;
+  const email = req.user?.email;
 
-  if (!userId) {
+  if (!userId || !username || !email) {
     throw new UnauthorizedError("Authentication required.");
   }
 
@@ -41,6 +43,8 @@ export const updateUserSettings = async (req: Request, res: Response) => {
 
   const updatedSettings = await userSettingsService.updateUserSettings(
     userId,
+    username,
+    email,
     validatedData,
     image
   );
