@@ -1,21 +1,16 @@
 import bcrypt from "bcrypt";
-import { z } from "zod";
-import {
-  LoginUserData,
-  registerSchema,
-  RegisterUserData,
-} from "../schema/auth.schema";
-import { sequelize, User } from "../models";
-import ForbiddenError from "../errors/forbidden.error";
 import { Op } from "sequelize";
 import ConflictError from "../errors/conflict.error";
+import ForbiddenError from "../errors/forbidden.error";
+import NotFoundError from "../errors/not-found.error";
 import UnauthorizedError from "../errors/unauthorized.error";
+import { sequelize, User, UserSettings } from "../models";
+import { LoginUserData, RegisterUserData } from "../schema/auth.schema";
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
 } from "../utils/jwt";
-import NotFoundError from "../errors/not-found.error";
 
 const SALT_ROUNDS = 10;
 
@@ -49,6 +44,17 @@ export const authService = {
         email,
         password: hashedPassword,
         role: "kasir",
+      },
+      { transaction }
+    );
+
+    await UserSettings.create(
+      {
+        userId: newUser.id,
+        language: "Indonesia",
+        preferenceMode: "light",
+        fontSize: 16,
+        zoomDisplay: 100,
       },
       { transaction }
     );

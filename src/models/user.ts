@@ -1,6 +1,6 @@
 import { Model, DataTypes, Sequelize } from "sequelize";
 import { Order } from "./order";
-import { UserSettings } from "./userSettings";
+import { UserSettings } from "./user-setting";
 
 export class User extends Model {
   public id!: number;
@@ -9,12 +9,15 @@ export class User extends Model {
   public password!: string;
   public role!: "admin" | "kasir";
   public image?: string;
+  public imageId?: string;
   public resetPasswordToken?: string;
   public resetPasswordExpires?: Date;
   public status?: "active" | "inactive";
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+
+  public readonly settings?: UserSettings;
 
   public static associate() {
     // Seorang Kasir (User) bisa memiliki banyak Order

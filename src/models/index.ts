@@ -5,7 +5,7 @@ import { initProductModel, Product } from "./product";
 import { initOrderModel, Order } from "./order";
 import { initOrderItemModel, OrderItem } from "./orderitem";
 import { config } from "dotenv";
-import { initUserSettingsModel, UserSettings } from "./userSettings";
+import { initUserSettingsModel, UserSettings } from "./user-setting";
 
 const env = process.env.NODE_ENV || "development";
 // const config = require(__dirname + "/../config/config.ts")[env];

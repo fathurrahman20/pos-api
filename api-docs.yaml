@@ -4,10 +4,10 @@ info:
   description: API Documentation for a Padi Point of Sale system.
   version: 1.0.0
 servers:
-  - url: https://pos-api.ffathur.my.id/api/v1
-    description: Production server
-  # - url: http://localhost:3000/api/v1
-  #   description: Local Development server
+  # - url: https://pos-api.ffathur.my.id/api/v1
+  #   description: Production server
+  - url: http://localhost:3000/api/v1
+    description: Local Development server
 components:
   securitySchemes:
     cookieAuth:
@@ -1517,3 +1517,167 @@ paths:
                             example: 6
         "401":
           description: Unauthorized, token is missing or invalid
+  /settings:
+    get:
+      summary: Get settings for the logged-in cashier
+      tags: [User Settings]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Successfully retrieved your settings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Successfully retrieved your settings"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      username:
+                        type: string
+                      email:
+                        type: string
+                        format: email
+                      image:
+                        type: string
+                        format: uri
+                        nullable: true
+                      # ... (properti data lainnya tetap sama)
+                      settings:
+                        type: object
+                        properties:
+                          language:
+                            type: string
+                            enum: [English, Indonesia]
+                          preferenceMode:
+                            type: string
+                            enum: [light, dark]
+                          fontSize:
+                            type: integer
+                          zoomDisplay:
+                            type: integer
+        "401":
+          description: Unauthorized - Authentication token is missing or invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+        "404":
+          description: User settings not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+    patch:
+      summary: Update current user's settings
+      tags: [User Settings]
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: "Minimum 3, maximum 50 characters"
+                email:
+                  type: string
+                  format: email
+                language:
+                  type: string
+                  enum: [English, Indonesia]
+                preferenceMode:
+                  type: string
+                  enum: [light, dark]
+                fontSize:
+                  type: integer
+                  description: "Minimum 10, maximum 24"
+                zoomDisplay:
+                  type: integer
+                  description: "Minimum 50, maximum 150"
+                image:
+                  type: string
+                  format: binary
+                  description: "User's profile picture file"
+      responses:
+        "200":
+          description: Successfully updated your settings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Successfully updated your settings"
+                  data: # Response body sama dengan GET
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      username:
+                        type: string
+                      # ... (sisa properti data sama)
+        "400":
+          description: Bad request (e.g., validation error)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+        "401":
+          description: Unauthorized - Authentication token is missing or invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+        "404":
+          description: User or their settings not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string

@@ -1,4 +1,3 @@
-// models/userSetting.ts
 import { Model, DataTypes, Sequelize } from "sequelize";
 import { User } from "./user";
 
@@ -34,7 +33,7 @@ export const initUserSettingsModel = (sequelize: Sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: "Users", // Nama tabel
+          model: "Users",
           key: "id",
         },
       },
