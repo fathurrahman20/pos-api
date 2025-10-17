@@ -61,31 +61,24 @@ export const userSettingsService = {
       throw new NotFoundError("User not found");
     }
 
-    let whereConditions: WhereOptions<User> = {};
-
-    if (data.username) {
-      whereConditions = {
-        [Op.or]: [{ username: data.username }],
-      };
+    const orConditions = [];
+    if (data.username && data.username !== user.username) {
+      orConditions.push({ username: data.username });
+    }
+    if (data.email && data.email !== user.email) {
+      orConditions.push({ email: data.email });
     }
 
-    if (data.email) {
-      whereConditions = {
-        [Op.or]: [{ email: data.email }],
-      };
-    }
-
-    if (data.username || data.email) {
-      const isUsernameAndEmailExist = await User.findOne({
-        where: whereConditions,
+    if (orConditions.length > 0) {
+      const existingUser = await User.findOne({
+        where: {
+          [Op.or]: orConditions,
+          id: { [Op.ne]: userId },
+        },
+        transaction,
       });
 
-      if (isUsernameAndEmailExist && user.username !== username) {
-        await transaction.rollback();
-        throw new ConflictError("Username or email already exist");
-      }
-
-      if (isUsernameAndEmailExist && user.email !== email) {
+      if (existingUser) {
         await transaction.rollback();
         throw new ConflictError("Username or email already exist");
       }
