@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getSalesReport } from "../controllers/salesReport.controller";
+import { getSalesReport } from "../controllers/sales-report.controller";
 import { authenticate } from "../middleware/auth.middleware";
 
 const salesReportRoutes = Router();

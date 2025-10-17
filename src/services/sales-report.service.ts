@@ -18,12 +18,6 @@ interface SalesReportParams {
   };
 }
 
-interface CategorySaleResult {
-  id: number;
-  name: string;
-  totalItemsSold: string;
-}
-
 export const salesReportService = {
   async generateSalesReport(params: SalesReportParams) {
     const { cashierId, filters, pagination } = params;
@@ -31,62 +25,70 @@ export const salesReportService = {
     const offset = (page - 1) * limit;
 
     const whereCondition: WhereOptions = {};
-
-    if (cashierId) {
-      whereCondition.cashierId = cashierId;
-    }
-
-    const includeCondition: Includeable[] = [];
-
+    if (cashierId) whereCondition.cashierId = cashierId;
     if (filters.startDate && filters.endDate) {
-      whereCondition.createdAt = {
-        [Op.between]: [new Date(filters.startDate), new Date(filters.endDate)],
-      };
+      const startDate = new Date(filters.startDate);
+      const endDate = new Date(filters.endDate);
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
+      whereCondition.createdAt = { [Op.between]: [startDate, endDate] };
     }
-
-    if (filters.orderType) {
-      whereCondition.orderType = filters.orderType;
-    }
-
-    const categoryFilter: Includeable = {
-      model: OrderItem,
-      as: "items",
-      attributes: [],
-      include: [
-        {
-          model: Product,
-          as: "product",
-          attributes: [],
-          include: [
-            {
-              model: Category,
-              as: "category",
-              attributes: [],
-              where: filters.categoryId
-                ? { id: filters.categoryId }
-                : undefined,
-            },
-          ],
-          required: true,
-        },
-      ],
-      required: true,
-    };
+    if (filters.orderType) whereCondition.orderType = filters.orderType;
 
     if (filters.categoryId) {
-      includeCondition.push(categoryFilter);
+      const filteredOrders = await Order.findAll({
+        attributes: ["id"],
+        where: whereCondition,
+        include: [
+          {
+            model: OrderItem,
+            as: "items",
+            attributes: [],
+            required: true,
+            include: [
+              {
+                model: Product,
+                as: "product",
+                attributes: [],
+                required: true,
+                include: [
+                  {
+                    model: Category,
+                    as: "category",
+                    attributes: [],
+                    required: true,
+                    where: { id: filters.categoryId },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        raw: true,
+      });
+
+      const orderIds = filteredOrders.map((order: { id: number }) => order.id);
+
+      if (orderIds.length === 0) {
+        return {
+          summary: {
+            totalOrder: 0,
+            totalOmzet: 0,
+            allMenuSales: 0,
+            salesByCategory: {},
+          },
+          orders: { data: [], currentPage: 1, totalPages: 0, totalItems: 0 },
+        };
+      }
+      whereCondition.id = { [Op.in]: orderIds };
     }
 
     const totalOrder = await Order.count({
       where: whereCondition,
-      include: includeCondition,
+      distinct: true,
     });
     const totalOmzet =
-      (await Order.sum("grandTotal", {
-        where: whereCondition,
-        include: includeCondition,
-      } as any)) || 0;
-
+      (await Order.sum("grandTotal", { where: whereCondition })) || 0;
     const allMenuSales =
       (await OrderItem.sum("quantity", {
         include: [
@@ -96,7 +98,6 @@ export const salesReportService = {
             where: whereCondition,
             attributes: [],
             required: true,
-            include: filters.categoryId ? includeCondition : [],
           },
         ],
       } as any)) || 0;
@@ -115,6 +116,7 @@ export const salesReportService = {
           model: Product,
           as: "products",
           attributes: [],
+          required: true,
           include: [
             {
               model: OrderItem,
@@ -132,40 +134,32 @@ export const salesReportService = {
               ],
             },
           ],
-          required: true,
         },
       ],
       group: ["Category.id", "Category.name"],
       raw: true,
-    })) as unknown as CategorySaleResult[];
+    })) as any;
 
     const salesByCategory = salesByCategoryData.reduce(
-      (acc: Record<string, number>, category) => {
+      (acc: Record<string, number>, category: any) => {
         acc[category.name] = parseInt(category.totalItemsSold, 10) || 0;
         return acc;
       },
       {}
     );
 
-    const { rows: orders, count } = await Order.findAndCountAll({
+    const { count, rows: orders } = await Order.findAndCountAll({
       where: whereCondition,
       include: [
-        ...includeCondition,
         {
           model: OrderItem,
           as: "items",
-          attributes: ["id"],
           include: [
             {
               model: Product,
               as: "product",
-              attributes: ["id"],
               include: [
-                {
-                  model: Category,
-                  as: "category",
-                  attributes: ["name"],
-                },
+                { model: Category, as: "category", attributes: ["name"] },
               ],
             },
           ],
@@ -197,12 +191,7 @@ export const salesReportService = {
     });
 
     return {
-      summary: {
-        totalOrder,
-        totalOmzet,
-        allMenuSales,
-        salesByCategory,
-      },
+      summary: { totalOrder, totalOmzet, allMenuSales, salesByCategory },
       orders: {
         data: formattedOrders,
         currentPage: page,

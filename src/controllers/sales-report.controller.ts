@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import BadRequestError from "../errors/bad-request.error";
-import { salesReportService } from "../services/salesReport.service";
+import { salesReportService } from "../services/sales-report.service";
 
 export const getSalesReport = async (req: Request, res: Response) => {
   const userId = req.user?.id;
