@@ -1,4 +1,4 @@
-import { Op, Sequelize, WhereOptions, Includeable } from "sequelize";
+import { Op, Sequelize, WhereOptions } from "sequelize";
 import { Order } from "../models/order";
 import { OrderItem } from "../models/orderitem";
 import { Product } from "../models/product";
@@ -16,6 +16,12 @@ interface SalesReportParams {
     page: number;
     limit: number;
   };
+}
+
+interface SalesDetailResult {
+  "category.name": string;
+  name: string;
+  totalSold: string;
 }
 
 export const salesReportService = {
@@ -102,51 +108,53 @@ export const salesReportService = {
         ],
       } as any)) || 0;
 
-    const salesByCategoryData = (await Category.findAll({
+    // Query untuk mendapatkan detail penjualan per produk, di-group berdasarkan produk dan kategori
+    const salesDetailData = (await Product.findAll({
       attributes: [
-        "id",
         "name",
-        [
-          Sequelize.fn("SUM", Sequelize.col("products.items.quantity")),
-          "totalItemsSold",
-        ],
+        // Hitung jumlah total item terjual untuk produk ini
+        [Sequelize.fn("SUM", Sequelize.col("items.quantity")), "totalSold"],
       ],
       include: [
         {
-          model: Product,
-          as: "products",
+          model: Category,
+          as: "category",
+          attributes: ["name"],
+          required: true,
+        },
+        {
+          model: OrderItem,
+          as: "items",
           attributes: [],
           required: true,
           include: [
             {
-              model: OrderItem,
-              as: "items",
+              model: Order,
+              as: "order",
+              where: whereCondition,
               attributes: [],
               required: true,
-              include: [
-                {
-                  model: Order,
-                  as: "order",
-                  attributes: [],
-                  where: whereCondition,
-                  required: true,
-                },
-              ],
             },
           ],
         },
       ],
-      group: ["Category.id", "Category.name"],
+      group: ["Product.id", "category.id"],
       raw: true,
-    })) as any;
+    })) as unknown as SalesDetailResult[];
 
-    const salesByCategory = salesByCategoryData.reduce(
-      (acc: Record<string, number>, category: any) => {
-        acc[category.name] = parseInt(category.totalItemsSold, 10) || 0;
-        return acc;
-      },
-      {}
-    );
+    const salesByCategory = salesDetailData.reduce((acc, item) => {
+      const categoryName = item["category.name"];
+      const productName = item.name;
+      const totalSold = parseInt(item.totalSold, 10) || 0;
+
+      if (!acc[categoryName]) {
+        acc[categoryName] = {};
+      }
+
+      acc[categoryName][productName] = totalSold;
+
+      return acc;
+    }, {} as Record<string, Record<string, number>>);
 
     const { count, rows: orders } = await Order.findAndCountAll({
       where: whereCondition,
