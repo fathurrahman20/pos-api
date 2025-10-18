@@ -1,5 +1,10 @@
 import { Request, Response } from "express";
-import { loginSchema, registerSchema } from "../schema/auth.schema";
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  registerSchema,
+  resetPasswordSchema,
+} from "../schema/auth.schema";
 import { authService } from "../services/auth.service";
 import NotFoundError from "../errors/not-found.error";
 
@@ -49,6 +54,31 @@ export const login = async (req: Request, res: Response) => {
     },
   });
   return;
+};
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  const { email } = forgotPasswordSchema.parse(req.body);
+
+  await authService.requestPasswordReset(email);
+
+  res.status(200).json({
+    success: true,
+    message:
+      "Jika email Anda terdaftar, Anda akan menerima link reset password.",
+  });
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  const { token } = req.params;
+
+  const { password } = resetPasswordSchema.parse(req.body);
+
+  await authService.resetPassword(token, password);
+
+  res.status(200).json({
+    success: true,
+    message: "Password berhasil direset.",
+  });
 };
 
 export const getCurrentUser = async (req: Request, res: Response) => {

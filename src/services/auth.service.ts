@@ -11,6 +11,8 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from "../utils/jwt";
+import { sendEmail } from "../utils/nodemailer";
+import crypto from "crypto";
 
 const SALT_ROUNDS = 10;
 
@@ -141,5 +143,59 @@ export const authService = {
     return {
       newAccessToken,
     };
+  },
+
+  async requestPasswordReset(email: string) {
+    const user = await User.findOne({ where: { email } });
+
+    if (user) {
+      const token = crypto.randomBytes(32).toString("hex");
+      user.resetPasswordToken = token;
+      user.resetPasswordExpires = new Date(Date.now() + 3600000);
+
+      await user.save();
+
+      const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+
+      const subject = "Permintaan Reset Password";
+      const html = `
+          <p>Halo! Kami menerima permintaan untuk mengatur ulang password akun Anda.</p>
+          <p>Silakan klik link di bawah ini untuk membuat password baru:</p>
+          <a href="${resetUrl}" target="_blank">Atur Ulang Password</a>
+          <p>Link ini hanya berlaku selama 1 jam ke depan, ya.</p>
+          <p>Kalau kamu tidak merasa meminta reset password, bisa abaikan saja email ini.</p>
+          <p>Terima kasih!</p>
+      `;
+
+      await sendEmail(user.email, subject, html);
+    }
+    return;
+  },
+
+  async resetPassword(token: string, newPassword: string) {
+    const user = await User.findOne({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: { [Op.gt]: new Date() },
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedError("Token tidak valid atau sudah kedaluwarsa.");
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    const subject = "Password Berhasil Diubah";
+    const html = `<p>Password Anda telah berhasil diubah. Anda sekarang bisa login dengan password baru.</p>`;
+    await sendEmail(user.email, subject, html);
+
+    return;
   },
 };
