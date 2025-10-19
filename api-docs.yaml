@@ -771,6 +771,18 @@ paths:
             minimum: 1
           required: false
           description: The number of items to retrieve per page.
+        - in: query
+          name: categoryId
+          schema:
+            type: integer
+          required: false
+          description: Filter products by category ID.
+        - in: query
+          name: q
+          schema:
+            type: string
+          required: false
+          description: Search query to filter products by name.
       responses:
         "200":
           description: List of products

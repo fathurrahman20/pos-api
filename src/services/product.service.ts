@@ -5,11 +5,31 @@ import {
   CreateProductSchema,
   UpdateProductSchema,
 } from "../schema/product.schema";
+import { WhereOptions } from "sequelize";
+import { Op } from "sequelize";
 
 export const productServices = {
-  async getAllProducts(page: number, limit: number) {
+  async getAllProducts(
+    page: number,
+    limit: number,
+    categoryId?: string,
+    q?: string
+  ) {
     const offset = (page - 1) * limit;
+    const where: WhereOptions<Product> = {};
+
+    if (categoryId) {
+      where.categoryId = categoryId;
+    }
+
+    if (q) {
+      // iLike untuk case insensitive
+      where.name = {
+        [Op.iLike]: `%${q}%`,
+      };
+    }
     const { count, rows } = await Product.findAndCountAll({
+      where,
       offset,
       limit,
       include: [

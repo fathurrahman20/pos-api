@@ -7,13 +7,17 @@ import {
 } from "../schema/product.schema";
 
 export const getAllProducts = async (req: Request, res: Response) => {
-  const { page, limit } = req.query;
+  const { page, limit, categoryId, q } = req.query;
   const pageAsNumber = page ? parseInt(page as string) : 1;
   const limitAsNumber = limit ? parseInt(limit as string) : 10;
+  const categoryIdAsString = categoryId ? (categoryId as string) : undefined;
+  const searchQuery = q ? (q as string) : undefined;
 
   const products = await productServices.getAllProducts(
     pageAsNumber,
-    limitAsNumber
+    limitAsNumber,
+    categoryIdAsString,
+    searchQuery
   );
 
   res.status(200).json({
