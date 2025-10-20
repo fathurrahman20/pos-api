@@ -1474,14 +1474,21 @@ paths:
                               type: integer
                             orderId:
                               type: integer
-                            productId:
-                              type: integer
                             quantity:
                               type: integer
                             price:
                               type: string
                             notes:
                               type: string
+                            product:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                      createdAt:
+                        type: string
         "404":
           description: Order not found
           content:

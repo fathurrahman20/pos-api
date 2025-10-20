@@ -41,13 +41,30 @@ export const orderServices = {
         {
           model: OrderItem,
           as: "items",
+          include: [
+            {
+              model: Product,
+              as: "product",
+              attributes: {
+                exclude: [
+                  "categoryId",
+                  "description",
+                  "price",
+                  "imageId",
+                  "image",
+                  "createdAt",
+                  "updatedAt",
+                ],
+              },
+            },
+          ],
           attributes: {
-            exclude: ["createdAt", "updatedAt"],
+            exclude: ["productId", "createdAt", "updatedAt"],
           },
         },
       ],
       attributes: {
-        exclude: ["createdAt", "updatedAt"],
+        exclude: ["updatedAt"],
       },
     });
 
