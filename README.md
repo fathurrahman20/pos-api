@@ -12,6 +12,17 @@ A complete backend API for the Padi Point of Sale system, built with Node.js, Ex
 - **User Settings**: Allows users to manage their profile and application preferences.
 - **Validation**: Uses Zod for robust request data validation.
 
+## Entity-Relationship Diagram
+
+<summary>
+<details>
+
+![ERD](public/erd.png)
+[See detail](https://dbdiagram.io/d/PadiPOS-ERD-Fathur-68f7c3462e68d21b4191837b)
+
+</details>
+</summary>
+
 ## Base URL
 
 All endpoints listed below are relative to the production server URL:
