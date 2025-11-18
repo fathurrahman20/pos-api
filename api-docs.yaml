@@ -6,8 +6,8 @@ info:
 servers:
   - url: https://pos-api.ffathur.my.id/api/v1
     description: Production server
-  # - url: http://localhost:3000/api/v1
-  #   description: Local Development server
+  - url: http://localhost:3000/api/v1
+    description: Local Development server
 components:
   securitySchemes:
     cookieAuth:
