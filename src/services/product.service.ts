@@ -1,17 +1,13 @@
 import NotFoundError from "../errors/not-found.error";
-import { Category, Product, sequelize } from "../models";
-import { v2 as cloudinary } from "cloudinary";
-import {
-  CreateProductSchema,
-  UpdateProductSchema,
-} from "../schema/product.schema";
-import { WhereOptions } from "sequelize";
-import { Op } from "sequelize";
-import { redisClient } from "../utils/redis";
+import {Category, Product, sequelize} from "../models";
+import {v2 as cloudinary} from "cloudinary";
+import {CreateProductSchema, UpdateProductSchema,} from "../schema/product.schema";
+import {Op, WhereOptions} from "sequelize";
+// import { redisClient } from "../utils/redis";
 
-const PRODUCTS_CACHE_KEY = (page: number, limit: number) =>
-  `products:page:${page}:limit:${limit}`;
-const PRODUCT_CACHE_KEY = (id: number) => `product:${id}`;
+// const PRODUCTS_CACHE_KEY = (page: number, limit: number) =>
+//   `products:page:${page}:limit:${limit}`;
+// const PRODUCT_CACHE_KEY = (id: number) => `product:${id}`;
 
 export const productServices = {
   async getAllProducts(
@@ -20,11 +16,11 @@ export const productServices = {
     categoryId?: string,
     q?: string
   ) {
-    const cacheKey = PRODUCTS_CACHE_KEY(page, limit);
-    const cachedProducts = await redisClient.get(cacheKey);
-    if (typeof cachedProducts === "string") {
-      return JSON.parse(cachedProducts);
-    }
+    // const cacheKey = PRODUCTS_CACHE_KEY(page, limit);
+    // const cachedProducts = await redisClient.get(cacheKey);
+    // if (typeof cachedProducts === "string") {
+    //   return JSON.parse(cachedProducts);
+    // }
     const offset = (page - 1) * limit;
     const where: WhereOptions<Product> = {};
 
@@ -57,26 +53,24 @@ export const productServices = {
 
     const totalPages = Math.ceil(count / limit);
 
-    const response = {
+    // await redisClient.set(cacheKey, JSON.stringify(response), {
+    //   ex: 3600,
+    // });
+
+    return {
       data: rows,
       totalItems: count,
       totalPages,
       currentPage: page,
     };
-
-    await redisClient.set(cacheKey, JSON.stringify(response), {
-      ex: 3600,
-    });
-
-    return response;
   },
 
   async getProductById(id: number) {
-    const cacheKey = PRODUCT_CACHE_KEY(id);
-    const cachedProduct = await redisClient.get(cacheKey);
-    if (typeof cachedProduct === "string") {
-      return JSON.parse(cachedProduct);
-    }
+    // const cacheKey = PRODUCT_CACHE_KEY(id);
+    // const cachedProduct = await redisClient.get(cacheKey);
+    // if (typeof cachedProduct === "string") {
+    //   return JSON.parse(cachedProduct);
+    // }
 
     const product = await Product.findByPk(id, {
       include: [
@@ -95,9 +89,9 @@ export const productServices = {
       throw new NotFoundError("Product not found");
     }
 
-    await redisClient.set(cacheKey, JSON.stringify(product), {
-      ex: 3600,
-    });
+    // await redisClient.set(cacheKey, JSON.stringify(product), {
+    //   ex: 3600,
+    // });
 
     return product;
   },
@@ -153,10 +147,10 @@ export const productServices = {
 
     await transaction.commit();
 
-    const keys = await redisClient.keys("products:page:*:limit:*");
-    for (const key of keys) {
-      await redisClient.del(key);
-    }
+    // const keys = await redisClient.keys("products:page:*:limit:*");
+    // for (const key of keys) {
+    //   await redisClient.del(key);
+    // }
 
     return newProduct;
   },
@@ -208,21 +202,19 @@ export const productServices = {
     await product.save();
     await transaction.commit();
 
-    const updatedProduct = await this.getProductById(id);
+    // await redisClient.del(PRODUCT_CACHE_KEY(id));
+    // const keys = await redisClient.keys("products:page:*:limit:*");
+    // for (const key of keys) {
+    //   await redisClient.del(key);
+    // }
+    //
+    // await redisClient.set(
+    //   PRODUCT_CACHE_KEY(id),
+    //   JSON.stringify(updatedProduct),
+    //   { ex: 3600 }
+    // );
 
-    await redisClient.del(PRODUCT_CACHE_KEY(id));
-    const keys = await redisClient.keys("products:page:*:limit:*");
-    for (const key of keys) {
-      await redisClient.del(key);
-    }
-
-    await redisClient.set(
-      PRODUCT_CACHE_KEY(id),
-      JSON.stringify(updatedProduct),
-      { ex: 3600 }
-    );
-
-    return updatedProduct;
+    return await this.getProductById(id);
   },
 
   async deleteProduct(id: number) {
@@ -236,11 +228,11 @@ export const productServices = {
 
     await product.destroy();
 
-    const keys = await redisClient.keys("products:page:*:limit:*");
-    for (const key of keys) {
-      await redisClient.del(key);
-    }
-    await redisClient.del(PRODUCT_CACHE_KEY(id));
+    // const keys = await redisClient.keys("products:page:*:limit:*");
+    // for (const key of keys) {
+    //   await redisClient.del(key);
+    // }
+    // await redisClient.del(PRODUCT_CACHE_KEY(id));
 
     return true;
   },
